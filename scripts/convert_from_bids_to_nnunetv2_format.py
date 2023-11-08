@@ -98,6 +98,7 @@ def process_images(
     datapath: Path,
     out_folder: str,
     case_id_dict: Dict[str, int],
+    dataset_name: str,
     is_test: bool = False,
 ):
     """
@@ -113,6 +114,8 @@ def process_images(
         Output directory to save processed images.
     case_id_dict : Dict[str, int]
         Dictionary mapping subject names to case IDs.
+    dataset_name : str
+        Name of the dataset.
     is_test : bool, optional
         Boolean flag indicating if the images are for testing, by default False.
     """
@@ -124,7 +127,7 @@ def process_images(
             key = str(extract_numbers(os.path.basename(img_file)))
             case_id = case_id_dict[key]
             img = cv2.imread(str(img_file), cv2.IMREAD_GRAYSCALE)
-            fname = f"NewDataset_{case_id:03d}{image_suffix}.png"
+            fname = f"{dataset_name}_{case_id:03d}{image_suffix}.png"
             cv2.imwrite(os.path.join(out_folder, folder_type, fname), img)
 
 
@@ -133,6 +136,7 @@ def process_labels(
     datapath: Path,
     out_folder: str,
     case_id_dict: Dict[str, int],
+    dataset_name: str,
 ):
     """
     Processes label images from a list of subjects, matching each image with the label having the largest 'N' number.
@@ -147,6 +151,8 @@ def process_labels(
         Output directory to save processed label images.
     case_id_dict : Dict[str, int]
         Dictionary mapping subject names to case IDs.
+    dataset_name : str
+        Name of the dataset.
     """
     for subject in subject_list:
         label_files = []
@@ -167,7 +173,7 @@ def process_labels(
             key = str(extract_numbers(os.path.basename(label_file)))
             case_id = case_id_dict[key]
             label = cv2.imread(str(label_file), cv2.IMREAD_GRAYSCALE)
-            fname = f"NewDataset_{case_id:03d}.png"
+            fname = f"{dataset_name}_{case_id:03d}.png"
             cv2.imwrite(os.path.join(out_folder, "labelsTr", fname), label)
 
 
@@ -207,34 +213,41 @@ def main(args):
     args : argparse.Namespace
         Command line arguments containing DATAPATH and TARGETDIR.
     """
+    dataset_name = args.DATASETNAME
+    description = args.DESCRIPTION
     datapath = Path(args.DATAPATH)
     target_dir = Path(args.TARGETDIR)
     derivatives = list(Path(datapath, "derivatives", "labels").glob("sub*"))
     subject_list = [d.name for d in derivatives]
 
-    out_folder = os.path.join(target_dir, "nnUNet_raw", "Dataset001_NewDataset")
+    out_folder = os.path.join(target_dir, "nnUNet_raw", f"Dataset001_{dataset_name}")
     create_directories(out_folder, ["imagesTr", "labelsTr", "imagesTs"])
 
     case_id_dict = create_case_id_dict(subject_list, datapath)
 
     dataset_info = {
-        "name": "NewDataset",
-        "description": "New dataset for nnUNetv2",
-        "labels": {"0": "background", "1": "separation"},
+        "name": dataset_name,
+        "description": description,
+        "labels": {"0": "background", "1": "boundary"},
         "numTraining": len(case_id_dict),
         "numTest": 0,
         "file_ending": ".png",
     }
     save_json(dataset_info, os.path.join(out_folder, "dataset.json"))
 
-    process_images(subject_list, datapath, out_folder, case_id_dict)
-    process_labels(subject_list, datapath, out_folder, case_id_dict)
+    process_images(subject_list, datapath, out_folder, case_id_dict, dataset_name)
+    process_labels(subject_list, datapath, out_folder, case_id_dict, dataset_name)
 
     unannotated_subjects = [
         d.name for d in Path(datapath, "derivatives", "ads-derivatives").glob("sub*")
     ]
     process_images(
-        unannotated_subjects, datapath, out_folder, case_id_dict, is_test=True
+        unannotated_subjects,
+        datapath,
+        out_folder,
+        case_id_dict,
+        dataset_name,
+        is_test=True,
     )
 
     save_json(case_id_dict, os.path.join(target_dir, "subject_to_case_identifier.json"))
@@ -247,6 +260,16 @@ if __name__ == "__main__":
         "--TARGETDIR",
         default=".",
         help="Target directory for the new dataset, defaults to current directory",
+    )
+    parser.add_argument(
+        "--DATASETNAME",
+        default="MyelinBoundarySegmentation",
+        help="Name of the new dataset, defaults to MyelinBoundarySegmentation",
+    )
+    parser.add_argument(
+        "--DESCRIPTION",
+        default="Myelin boundary segmentation dataset for nnUNetv2",
+        help="Description of the new dataset, defaults to Myelin boundary segmentation dataset for nnUNetv2",
     )
     args = parser.parse_args()
     main(args)
