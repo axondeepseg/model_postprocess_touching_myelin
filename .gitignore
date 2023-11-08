@@ -161,3 +161,6 @@ cython_debug/
 
 # Folders to ignore
 local/
+
+# vscode folder to ignore
+.vscode/
