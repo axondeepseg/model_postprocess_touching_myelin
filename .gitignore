@@ -161,6 +161,10 @@ cython_debug/
 
 # Folders to ignore
 local/
+nnUNet_raw/
+
+# Files to ignore
+subject_to_case_identifier.json
 
 # vscode folder to ignore
 .vscode/
