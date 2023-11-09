@@ -16,6 +16,12 @@ The repository contains the following key components:
 ```bash
 python scripts/convert_from_bids_to_nnunetv2_format.py <PATH/TO/ORIGINAL/DATASET> --TARGETDIR <PATH/TO/NEW/DATASET>
 ```
+
+- **Pretty Print Dataset Script**: This script is used to display datasets in a pretty format following nnUNet's documentation. It can be useful when making changes to the code to ensure that the dataset is properly formatted. The script can be called by running the following command:
+```bash
+python scripts/pretty_print_dataset.py <PATH/TO/ORIGINAL/DATASET>
+```
+
 ## Getting Started
 
 To set up the environment and run the scripts, follow these steps:
