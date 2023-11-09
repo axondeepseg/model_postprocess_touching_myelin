@@ -172,7 +172,7 @@ def process_labels(
         for label_file in label_files:
             key = str(extract_numbers(os.path.basename(label_file)))
             case_id = case_id_dict[key]
-            label = cv2.imread(str(label_file), cv2.IMREAD_GRAYSCALE)
+            label = cv2.imread(str(label_file), cv2.IMREAD_GRAYSCALE) // 255
             fname = f"{dataset_name}_{case_id:03d}.png"
             cv2.imwrite(os.path.join(out_folder, "labelsTr", fname), label)
 
@@ -228,7 +228,8 @@ def main(args):
     dataset_info = {
         "name": dataset_name,
         "description": description,
-        "labels": {"0": "background", "1": "boundary"},
+        "labels": {"background": 0, "boundary": 1},
+        "channel_names": {"0": "rescale_to_0_1"},
         "numTraining": len(case_id_dict),
         "numTest": 0,
         "file_ending": ".png",
