@@ -32,35 +32,31 @@ from typing import Dict, List
 import cv2
 
 
-def extract_numbers(s: str) -> tuple:
+def extract_sample_participant(s: str) -> tuple:
     """
-    Extracts the first two sets of numbers from a given string and returns them as a tuple.
-
-    This function is designed to parse strings of a specific format, commonly found in filenames,
-    to extract two key numerical identifiers. It's particularly useful for filenames that contain
-    identifiers like mouse number and sample number.
+    Extracts sample and participant identifiers from a given string and returns them as a tuple.
 
     Parameters
     ----------
     s : str
-        The string from which numbers are to be extracted.
-        Expected to contain at least two numerical sequences.
+        The string from which identifiers are to be extracted.
+        Expected to contain a pattern like 'sub-nyuMouseXX_sample-XXXX'.
 
     Returns
     -------
     tuple
-        A tuple containing the first two integers found in the string.
-        For example, for "sub-nyuMouse26_sample-0002_axonmyelin", it returns (26, 2).
+        A tuple containing the participant and sample identifiers.
+        For example, for "sub-nyuMouse26_sample-0002_axonmyelin.png", it returns ('sub-nyuMouse26', 'sample-0002').
 
     Raises
     ------
     ValueError
-        If the string does not contain at least two numerical sequences.
+        If the string does not contain the expected pattern.
     """
-    numbers = re.findall(r"\d+", s)
-    if len(numbers) < 2:
-        raise ValueError("Insufficient numerical sequences in the string.")
-    return tuple(int(num) for num in numbers[:2])
+    match = re.search(r"(sub-nyuMouse\d+)_.*(sample-\d+)", s)
+    if not match:
+        raise ValueError("The string does not contain the expected pattern.")
+    return match.groups()
 
 
 def create_directories(base_dir: str, subdirs: List[str]):
@@ -124,7 +120,7 @@ def process_images(
     for subject in subject_list:
         image_files = sorted(Path(datapath, subject, "micr").glob("*.png"))
         for img_file in image_files:
-            key = str(extract_numbers(os.path.basename(img_file)))
+            key = str(extract_sample_participant(os.path.basename(img_file)))
             case_id = case_id_dict[key]
             img = cv2.imread(str(img_file), cv2.IMREAD_GRAYSCALE)
             fname = f"{dataset_name}_{case_id:03d}{image_suffix}.png"
@@ -170,7 +166,7 @@ def process_labels(
                 label_files.append(label_files_match[-1])
 
         for label_file in label_files:
-            key = str(extract_numbers(os.path.basename(label_file)))
+            key = str(extract_sample_participant(os.path.basename(label_file)))
             case_id = case_id_dict[key]
             label = cv2.imread(str(label_file), cv2.IMREAD_GRAYSCALE) // 255
             fname = f"{dataset_name}_{case_id:03d}.png"
@@ -179,7 +175,7 @@ def process_labels(
 
 def create_case_id_dict(subject_list: List[str], datapath: Path) -> Dict[str, int]:
     """
-    Creates a dictionary mapping unique keys to case IDs.
+    Creates a dictionary mapping unique (sample_id, participant_id) tuples to case IDs.
 
     Parameters
     ----------
@@ -191,16 +187,22 @@ def create_case_id_dict(subject_list: List[str], datapath: Path) -> Dict[str, in
     Returns
     -------
     Dict[str, int]
-        Dictionary mapping unique keys to case IDs.
+        Dictionary mapping unique (sample_id, participant_id) tuples to case IDs.
     """
     case_id_dict = {}
     case_id = 0
-    for subject in subject_list:
-        image_files = sorted(Path(datapath, subject, "micr").glob("*.png"))
-        for img_file in image_files:
-            key = str(extract_numbers(os.path.basename(img_file)))
-            case_id_dict[key] = case_id
-            case_id += 1
+    samples_file = datapath / "samples.tsv"
+    with open(samples_file, "r") as f:
+        # Skip header line
+        next(f)
+        for line in f:
+            parts = line.strip().split("\t")
+            sample_id, participant_id = parts[0], parts[1]
+            key = str((participant_id, sample_id))
+            if participant_id in subject_list:
+                if key not in case_id_dict:
+                    case_id_dict[key] = case_id
+                    case_id += 1
     return case_id_dict
 
 
