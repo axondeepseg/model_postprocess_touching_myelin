@@ -1,0 +1,11 @@
+name: touching_myelin
+channels:
+  - pytorch
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3
+  - pytorch=2
+  - opencv
+  - pip:
+      - nnunetv2==2
