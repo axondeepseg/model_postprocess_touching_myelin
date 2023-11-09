@@ -1,9 +1,8 @@
 import argparse
 import os
-from typing import Optional
 
 
-def print_directory_structure(rootdir: str, prefix: Optional[str] = "") -> None:
+def print_directory_structure(rootdir: str, prefix: str = "") -> None:
     """
     Recursively prints the directory structure with a pretty format.
 
