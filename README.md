@@ -34,17 +34,21 @@ conda env create -f environment.yaml
 ```bash
 conda activate touching_myelin
 ```
-3. Run the conversion script (the default target directory is the current working directory):
+3. Define a global variable for the directory where you want to save the results:
 ```bash
-python scripts/convert_from_bids_to_nnunetv2_format.py <PATH/TO/ORIGINAL/DATASET>
+export RESULTS_DIR="<PATH/TO/SAVE/RESULTS>"
 ```
-4. Set up the necessary environment variables:
+4. Run the conversion script (the default target directory is the current working directory):
 ```bash
-export nnUNet_raw="$(pwd)/nnUNet_raw"
-export nnUNet_preprocessed="$(pwd)/nnUNet_preprocessed"
-export nnUNet_results="$(pwd)/nnUNet_results"
+python scripts/convert_from_bids_to_nnunetv2_format.py <PATH/TO/ORIGINAL/DATASET> --TARGETDIR $RESULTS_DIR
 ```
-5. Run the nnUNet preprocessing command:
+5. Set up the necessary environment variables:
+```bash
+export nnUNet_raw="$RESULTS_DIR/nnUNet_raw"
+export nnUNet_preprocessed="$RESULTS_DIR/nnUNet_preprocessed"
+export nnUNet_results="$RESULTS_DIR/nnUNet_results"
+```
+6. Run the nnUNet preprocessing command:
 ```bash
 nnUNetv2_plan_and_preprocess -d 1 --verify_dataset_integrity
 ```
