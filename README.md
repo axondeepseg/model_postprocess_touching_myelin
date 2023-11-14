@@ -22,6 +22,12 @@ python scripts/convert_from_bids_to_nnunetv2_format.py <PATH/TO/ORIGINAL/DATASET
 python scripts/pretty_print_dataset.py <PATH/TO/ORIGINAL/DATASET>
 ```
 
+- **Training Script**: This script is used to train the model with nnUNetv2. To run execute the following command: 
+```bash
+./scripts/train_nnunet.sh
+```
+
+
 ## Getting Started
 
 To set up the environment and run the scripts, follow these steps:
@@ -61,7 +67,9 @@ export nnUNet_results="$RESULTS_DIR/nnUNet_results"
 ```bash
 nnUNetv2_plan_and_preprocess -d 1 --verify_dataset_integrity
 ```
-9. Train the model using nnUNetv2:
+## Training the Model
+
+After setting up the environment and preprocessing the data, you can train the model using nnUNetv2. Run the following command:
 ```bash
 ./scripts/train_nnunet.sh
 ```
