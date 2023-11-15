@@ -164,6 +164,7 @@ local/
 nnUNet_raw/
 nnUNet_preprocessed/
 nnUNet_results/
+figures/
 
 # Files to ignore
 subject_to_case_identifier.json

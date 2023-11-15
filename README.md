@@ -22,6 +22,12 @@ python scripts/convert_from_bids_to_nnunetv2_format.py <PATH/TO/ORIGINAL/DATASET
 python scripts/pretty_print_dataset.py <PATH/TO/ORIGINAL/DATASET>
 ```
 
+- **Training Script**: This script is used to train the model with nnUNetv2. To run execute the following command: 
+```bash
+./scripts/train_nnunet.sh
+```
+
+
 ## Getting Started
 
 To set up the environment and run the scripts, follow these steps:
@@ -45,19 +51,25 @@ conda env update --file environment.yaml
 ```
 5. Run the conversion script (the default target directory is the current working directory):
 ```bash
-python scripts/convert_from_bids_to_nnunetv2_format.py <PATH/TO/ORIGINAL/DATASET>
+export RESULTS_DIR="<PATH/TO/SAVE/RESULTS>"
 ```
 6. Set up the necessary environment variables:
 ```bash
-export nnUNet_raw="$(pwd)/nnUNet_raw"
-export nnUNet_preprocessed="$(pwd)/nnUNet_preprocessed"
-export nnUNet_results="$(pwd)/nnUNet_results"
+python scripts/convert_from_bids_to_nnunetv2_format.py <PATH/TO/ORIGINAL/DATASET> --TARGETDIR $RESULTS_DIR
 ```
-7. Run the nnUNet preprocessing command:
+7. Set up the necessary environment variables:
+```bash
+export nnUNet_raw="$RESULTS_DIR/nnUNet_raw"
+export nnUNet_preprocessed="$RESULTS_DIR/nnUNet_preprocessed"
+export nnUNet_results="$RESULTS_DIR/nnUNet_results"
+```
+8. Run the nnUNet preprocessing command:
 ```bash
 nnUNetv2_plan_and_preprocess -d 1 --verify_dataset_integrity
 ```
-8. Train the model using nnUNetv2:
+## Training the Model
+
+After setting up the environment and preprocessing the data, you can train the model using nnUNetv2. Run the following command:
 ```bash
 ./scripts/train_nnunet.sh
 ```
