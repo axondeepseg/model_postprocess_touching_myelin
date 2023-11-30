@@ -219,10 +219,15 @@ def main(args):
     description = args.DESCRIPTION
     datapath = Path(args.DATAPATH)
     target_dir = Path(args.TARGETDIR)
+    dataset_num = args.NUM
+    
+    names = list(Path(datapath).glob("sub*"))
+    subject_list = [d.name for d in names]
     derivatives = list(Path(datapath, "derivatives", "labels").glob("sub*"))
-    subject_list = [d.name for d in derivatives]
+    train_subject_list = [d.name for d in derivatives]
+    test_subject_list = [d.name for d in names if d.name not in train_subject_list]
 
-    out_folder = os.path.join(target_dir, "nnUNet_raw", f"Dataset001_{dataset_name}")
+    out_folder = os.path.join(target_dir, "nnUNet_raw", f"Dataset{dataset_num:03d}_{dataset_name}")
     create_directories(out_folder, ["imagesTr", "labelsTr", "imagesTs"])
 
     case_id_dict = create_case_id_dict(subject_list, datapath)
@@ -238,8 +243,10 @@ def main(args):
     }
     save_json(dataset_info, os.path.join(out_folder, "dataset.json"))
 
-    process_images(subject_list, datapath, out_folder, case_id_dict, dataset_name)
-    process_labels(subject_list, datapath, out_folder, case_id_dict, dataset_name)
+    process_images(train_subject_list, datapath, out_folder, case_id_dict, dataset_name)
+    process_labels(train_subject_list, datapath, out_folder, case_id_dict, dataset_name)
+    
+    process_images(test_subject_list, datapath, out_folder, case_id_dict, dataset_name, is_test=True)
 
     unannotated_subjects = [
         d.name for d in Path(datapath, "derivatives", "ads-derivatives").glob("sub*")
@@ -268,6 +275,12 @@ if __name__ == "__main__":
         "--DATASETNAME",
         default="MyelinBoundarySegmentation",
         help="Name of the new dataset, defaults to MyelinBoundarySegmentation",
+    )
+    parser.add_argument(
+        "--NUM",
+        default=1,
+        type=int,
+        help="Number of the new dataset, defaults to 1",
     )
     parser.add_argument(
         "--DESCRIPTION",
