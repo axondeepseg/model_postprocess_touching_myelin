@@ -1,5 +1,11 @@
 # nn_touching_myelin
 
+![Boundary Detection Results](assets/boundary_detection_readme.png)
+
+**Figure 1:** Test results using both the best and latest checkpoints. These test images are from patient sub-nyuMouse07 in the TEM dataset.
+
+
+
 This repository is dedicated to the task of converting the Touching Myelin Boundary Detection Dataset from the BIDS format to the format expected by nnUNetv2. The dataset can be found at [this location](https://github.com/axondeepseg/data_touching_myelin).
 
 The repository also includes a training script for training the model with nnUNetv2.
@@ -74,6 +80,13 @@ After setting up the environment and preprocessing the data, you can train the m
 ./scripts/train_nnunet.sh
 ```
 
+## Inference
+
+After training the model, you can perform inference using the following command:
+```bash
+python scripts/nn_unet_inference.py --path-dataset ${RESULTS_DIR}/nnUNet_raw/Dataset001_MyelinBoundarySegmentation/imagesTs --path-out <WHERE/TO/SAVE/RESULTS> --path-model ${RESULTS_DIR}/nnUNet_results/Dataset001_MyelinBoundarySegmentation/nnUNetTrainer__nnUNetPlans__2d/ --use-gpu --use-best-checkpoint
+```
+The `--use-best-checkpoint` flag is optional. If used, the model will use the best checkpoints for inference. If not used, the model will use the latest checkpoints. Based on empirical results, using the `--use-best-checkpoint` flag is recommended.
 
 ## Contributing
 
