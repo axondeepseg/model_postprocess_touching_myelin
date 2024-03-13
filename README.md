@@ -51,6 +51,7 @@ conda activate touching_myelin
 conda install pytorch torchvision torchaudio pytorch-cuda=12.1 -c pytorch -c nvidia
 ```
 For others, please refer to the PyTorch installation guide at https://pytorch.org/get-started/locally/ to get the appropriate command for your system.
+
 4. Update the environment with the remaining dependencies:
 ```bash
 conda env update --file environment.yaml
@@ -58,18 +59,15 @@ conda env update --file environment.yaml
 5. Run the conversion script (the default target directory is the current working directory):
 ```bash
 export RESULTS_DIR="<PATH/TO/SAVE/RESULTS>"
-```
-6. Set up the necessary environment variables:
-```bash
 python scripts/convert_from_bids_to_nnunetv2_format.py <PATH/TO/ORIGINAL/DATASET> --TARGETDIR $RESULTS_DIR
 ```
-7. Set up the necessary environment variables:
+6. Set up the necessary environment variables:
 ```bash
 export nnUNet_raw="$RESULTS_DIR/nnUNet_raw"
 export nnUNet_preprocessed="$RESULTS_DIR/nnUNet_preprocessed"
 export nnUNet_results="$RESULTS_DIR/nnUNet_results"
 ```
-8. Run the nnUNet preprocessing command:
+7. Run the nnUNet preprocessing command:
 ```bash
 nnUNetv2_plan_and_preprocess -d 1 --verify_dataset_integrity
 ```
